@@ -26,7 +26,7 @@ const _ = db.command; // 获取数据库命令对象
 // connectDB();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3306;
 
 // 中间件
 app.use(cors());
