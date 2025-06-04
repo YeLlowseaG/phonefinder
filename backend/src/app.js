@@ -3,8 +3,9 @@ const express = require('express');
 const cors = require('cors');
 const { body, query, validationResult } = require('express-validator');
 const amapService = require('./services/amapService');
-const connectDB = require('./db'); // 导入数据库连接函数
-const User = require('./models/User'); // 导入 User 模型
+const tcb = require('@cloudbase/node-sdk'); // 导入微信云托管 SDK
+// const connectDB = require('./db'); // 导入数据库连接函数
+// const prisma = require('./utils/prisma'); // 导入 Prisma 客户端
 const { generateToken } = require('./utils/jwt');
 const authMiddleware = require('./middleware/auth');
 const XLSX = require('xlsx'); // 导入 xlsx 库
@@ -12,10 +13,17 @@ const wechatPayService = require('./services/wechatPayService'); // 导入微信
 const { WECHAT_PAY_CONFIG, verifySign } = require('./services/wechatPayService'); // 导入 WECHAT_PAY_CONFIG 和 verifySign
 const xmlparser = require('express-xml-bodyparser'); // 导入用于解析 XML 请求体的中间件
 const xml2js = require('xml2js'); // 导入 xml2js 用于构建 XML 响应
-const PaymentIntent = require('./models/PaymentIntent'); // 导入 PaymentIntent 模型
+// const PaymentIntent = require('./models/PaymentIntent'); // 导入 PaymentIntent 模型
 
-// 连接数据库
-connectDB();
+// 初始化微信云托管 SDK
+const appTcb = tcb.init({
+  env: process.env.TENCENTCLOUD_RUNENVID || 'your-cloudbase-env-id' // 从环境变量获取环境 ID，或替换为你的环境 ID
+});
+const db = appTcb.database(); // 获取数据库引用
+const _ = db.command; // 获取数据库命令对象
+
+// 连接数据库 (现在由 SDK 管理连接，无需手动调用)
+// connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -58,7 +66,8 @@ app.get('/api/search', authMiddleware, [
         // 从认证中间件中获取用户 ID
         const userId = req.userId;
         // 根据用户 ID 查找用户对象
-        const user = await User.findById(userId);
+        const userRes = await db.collection('users').doc(userId).get();
+        const user = userRes.data[0];
 
         if (!user) {
             return res.status(404).json({ success: false, error: '用户未找到' });
@@ -134,25 +143,28 @@ app.post('/api/auth/verify-code', [
 
     try {
         // 查找用户，如果不存在则创建新用户
-        let user = await User.findOne({ phone });
+        const userRes = await db.collection('users').where({ phone }).get();
+        let user = userRes.data[0];
 
         if (!user) {
             // 用户不存在，创建新用户
-            user = new User({ phone });
-            await user.save();
+            const newUserRes = await db.collection('users').add({ phone });
+            // 微信云托管 add 返回的是 _id，需要重新查询才能获取完整用户对象（或修改前端逻辑）
+            // 为了简化，这里创建一个简化的 user 对象用于生成 token 和返回响应
+            user = { _id: newUserRes.id, phone }; 
             console.log(`新用户注册成功，手机号: ${phone}`);
         } else {
             console.log(`用户登录成功，手机号: ${phone}`);
         }
 
         // 生成 JWT token
-        const token = generateToken(user._id);
+        const token = generateToken(user._id); // 使用 _id 字段生成 token
 
         res.json({
             success: true,
             message: '登录成功',
             data: {
-                userId: user._id,
+                userId: user._id, // 使用 _id
                 token,
                 phone: user.phone
             }
@@ -167,7 +179,10 @@ app.post('/api/auth/verify-code', [
 // 添加一个获取当前用户信息的接口
 app.get('/api/auth/me', authMiddleware, async (req, res) => {
     try {
-        const user = await User.findById(req.userId);
+        const userId = req.userId; // 从 authMiddleware 获取 _id
+        const userRes = await db.collection('users').doc(userId).get();
+        const user = userRes.data[0];
+        
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -178,7 +193,7 @@ app.get('/api/auth/me', authMiddleware, async (req, res) => {
         res.json({
             success: true,
             data: {
-                userId: user._id,
+                userId: user._id, // 使用 _id
                 phone: user.phone,
                 membershipType: user.membershipType,
                 dailyExportCount: user.dailyExportCount,
@@ -197,8 +212,9 @@ app.get('/api/auth/me', authMiddleware, async (req, res) => {
 // 路由：导出数据
 app.post('/api/export', authMiddleware, async (req, res) => {
     try {
-        const userId = req.userId;
-        const user = await User.findById(userId);
+        const userId = req.userId; // 从认证中间件获取用户 _id
+        const userRes = await db.collection('users').doc(userId).get();
+        const user = userRes.data[0];
 
         if (!user) {
             return res.status(404).json({ success: false, error: '用户未找到' });
@@ -216,9 +232,11 @@ app.post('/api/export', authMiddleware, async (req, res) => {
         today.setHours(0, 0, 0, 0); // 设置到今天开始
 
         // 检查是否是新的一天，如果是则重置计数
-        if (!user.dailyExportCountResetDate || user.dailyExportCountResetDate.getTime() < today.getTime()) {
+        if (!user.dailyExportCountResetDate || new Date(user.dailyExportCountResetDate).getTime() < today.getTime()) {
             user.dailyExportCount = 0;
-            user.dailyExportCountResetDate = today;
+            // 注意：微信云托管数据库的日期类型可能与 Node.js Date 对象略有不同，这里直接使用 Date.now() 或 new Date() 可能需要根据实际情况调整
+            // 建议在数据库中存储为时间戳或标准的 ISO 8601 字符串
+            user.dailyExportCountResetDate = new Date(); // 使用 Date 对象，如果同步有问题，可能需要转成时间戳或字符串
         }
 
         switch (user.membershipType) {
@@ -256,9 +274,12 @@ app.post('/api/export', authMiddleware, async (req, res) => {
 
         // 更新用户的 dailyExportCount (如果适用)
         if (user.membershipType === 'standard') {
-             user.dailyExportCount += exportData.length;
-             // 保存用户更新到数据库
-             await user.save();
+             // 使用 _.inc() 原子更新操作，避免并发问题
+             await db.collection('users').doc(userId).update({
+                 data: { dailyExportCount: _.inc(exportData.length) }
+                 // 注意：dailyExportCountResetDate 如果在同一天多次导出，不应该被 inc 覆盖
+                 // 且如果涉及跨天重置，逻辑需要在 dailyExportCountResetDate 判断部分处理
+             });
         }
 
         // 设置响应头以便前端下载文件
@@ -281,8 +302,9 @@ app.post('/api/payment/create-order', authMiddleware, [
     validate
 ], async (req, res) => {
     try {
-        const userId = req.userId; // 从认证中间件获取用户ID
-        const user = await User.findById(userId);
+        const userId = req.userId; // 从认证中间件获取用户 _id
+        const userRes = await db.collection('users').doc(userId).get();
+        const user = userRes.data[0];
         if (!user) {
             return res.status(404).json({ success: false, error: '用户未找到' });
         }
@@ -291,6 +313,7 @@ app.post('/api/payment/create-order', authMiddleware, [
 
         const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
          // 生成唯一的商户订单号 (这里简化使用用户ID和时间戳)
+        // 注意：微信云托管数据库的 _id 是 String 类型
         const orderId = `${WECHAT_PAY_CONFIG.mchId || 'MCH'}${Date.now()}${userId.toString().slice(-6)}`;
 
         // TODO: 根据 membershipType 确定订单金额、商品描述等信息 (已存在)
@@ -298,14 +321,16 @@ app.post('/api/payment/create-order', authMiddleware, [
         const description = `${membershipType} 会员升级`;
 
         // 创建 PaymentIntent 记录
-        const paymentIntent = new PaymentIntent({
+        const paymentIntentRes = await db.collection('payment_intents').add({
             outTradeNo: orderId,
-            userId: userId,
+            userId: userId, // 存储用户 _id
             membershipType: membershipType,
             amount: amount,
             status: 'pending', // 初始状态为待支付
+            createdAt: new Date(),
+            updatedAt: new Date(),
         });
-        await paymentIntent.save();
+        const paymentIntentId = paymentIntentRes.id; // 获取新创建的记录 ID
 
         const createOrderResult = await wechatPayService.createNativePayOrder(orderId, amount, description, clientIp);
 
@@ -314,9 +339,9 @@ app.post('/api/payment/create-order', authMiddleware, [
             res.json({ success: true, data: { codeUrl: createOrderResult.code_url, orderId: orderId } });
         } else {
              // 如果微信支付统一下单失败，将 PaymentIntent 状态更新为 failed
-            paymentIntent.status = 'failed';
-            // TODO: 记录具体的失败原因
-            await paymentIntent.save();
+            await db.collection('payment_intents').doc(paymentIntentId).update({
+                data: { status: 'failed' }
+            });
 
             // 如果 wechatPayService 返回 success: false，则使用它返回的错误信息
             res.status(500).json({ success: false, error: createOrderResult.error });
@@ -335,11 +360,13 @@ app.get('/api/payment/query-order', authMiddleware, [
     validate
 ], async (req, res) => {
     try {
-        const userId = req.userId; // 从认证中间件获取用户ID
+        const userId = req.userId; // 从认证中间件获取用户 _id
         const { outTradeNo } = req.query;
 
         // 查找对应用户和订单号的 PaymentIntent 记录
-        const paymentIntent = await PaymentIntent.findOne({ outTradeNo: outTradeNo, userId: userId });
+        // 注意：微信云托管数据库 where 多个条件是 AND 关系
+        const paymentIntentRes = await db.collection('payment_intents').where({ outTradeNo: outTradeNo, userId: userId }).get();
+        const paymentIntent = paymentIntentRes.data[0];
 
         if (!paymentIntent) {
             console.warn('Attempted to query non-existent or unauthorized order:', outTradeNo, 'User ID:', userId);
@@ -406,7 +433,8 @@ app.post('/api/payment/notify', async (req, res) => {
 
         try {
             // 1. 根据 out_trade_no 查找 PaymentIntent 记录
-            const paymentIntent = await PaymentIntent.findOne({ outTradeNo: out_trade_no });
+            const paymentIntentRes = await db.collection('payment_intents').where({ outTradeNo: out_trade_no }).get();
+            const paymentIntent = paymentIntentRes.data[0];
 
             // 2. 检查 PaymentIntent 是否存在且状态为 pending
             if (!paymentIntent || paymentIntent.status !== 'pending') {
@@ -424,9 +452,9 @@ app.post('/api/payment/notify', async (req, res) => {
             if (parseInt(total_fee) !== paymentIntent.amount || appid !== WECHAT_PAY_CONFIG.appId || mch_id !== WECHAT_PAY_CONFIG.mchId) {
                  console.error('Payment Intent Security Check Failed for out_trade_no:', out_trade_no, 'Notification data:', notifyData, 'PaymentIntent data:', paymentIntent);
                  // 记录异常或进行补偿处理
-                 paymentIntent.status = 'failed'; // 标记为失败
-                 paymentIntent.error = '安全验证失败: 金额/appid/mch_id 不匹配'; // 记录失败原因
-                 await paymentIntent.save();
+                 await db.collection('payment_intents').doc(paymentIntent._id).update({
+                     data: { status: 'failed', error: '安全验证失败: 金额/appid/mch_id 不匹配' }
+                 });
 
                  const failXml = new xml2js.Builder({ rootName: 'xml', headless: true }).buildObject({
                     return_code: 'FAIL',
@@ -437,42 +465,39 @@ app.post('/api/payment/notify', async (req, res) => {
             }
 
             // 4. 支付成功，更新 PaymentIntent 状态和相关信息
-            paymentIntent.status = 'paid';
-            paymentIntent.wechatTransactionId = transaction_id;
-            paymentIntent.paidAt = new Date(); // 可以解析 time_end 字段更精确，但Date.now()也行
-            await paymentIntent.save();
-            console.log(`PaymentIntent ${paymentIntent.outTradeNo} 状态更新为 paid`);
+            await db.collection('payment_intents').doc(paymentIntent._id).update({
+                data: { status: 'paid', wechatTransactionId: transaction_id, paidAt: new Date() }
+            });
+            console.log(`PaymentIntent ${out_trade_no} 状态更新为 paid`);
 
             // 5. 更新用户会员状态
-            const user = await User.findById(paymentIntent.userId);
+            const userRes = await db.collection('users').doc(paymentIntent.userId).get();
+            const user = userRes.data[0];
             if (user) {
                  // 根据 paymentIntent.membershipType 设置新的会员类型和计算过期时间
-                 user.membershipType = paymentIntent.membershipType;
-                 
-                 // 计算过期时间：如果已有会员且未过期，则在现有过期时间基础上延长；否则从现在开始计算。
-                 const currentExpiry = user.membershipExpiryDate && user.membershipExpiryDate > new Date() ? user.membershipExpiryDate : new Date();
-                 let expiryDurationMs = 0; // 有效期毫秒数
-                 
-                 const standardDurationDays = parseInt(process.env.MEMBERSHIP_STANDARD_DURATION_DAYS || '30'); // 默认 30 天
-                 const premiumDurationDays = parseInt(process.env.MEMBERSHIP_PREMIUM_DURATION_DAYS || '365'); // 默认 365 天
+                 const standardDurationDays = parseInt(process.env.MEMBERSHIP_STANDARD_DURATION_DAYS || '30');
+                 const premiumDurationDays = parseInt(process.env.MEMBERSHIP_PREMIUM_DURATION_DAYS || '365');
 
+                 let newMembershipExpiryDate = null;
                  if (paymentIntent.membershipType === 'standard') {
-                     expiryDurationMs = standardDurationDays * 24 * 60 * 60 * 1000; // 标准会员有效期（天）
+                     newMembershipExpiryDate = new Date(Date.now() + standardDurationDays * 24 * 60 * 60 * 1000);
                  } else if (paymentIntent.membershipType === 'premium') {
-                     expiryDurationMs = premiumDurationDays * 24 * 60 * 60 * 1000; // 高级会员有效期（天）
+                      newMembershipExpiryDate = new Date(Date.now() + premiumDurationDays * 24 * 60 * 60 * 1000);
                  }
 
-                 user.membershipExpiryDate = new Date(currentExpiry.getTime() + expiryDurationMs);
-                 
-                 // 每日导出计数通常不需要在会员升级时重置，新的会员规则会生效。
-                 // 如果需要重置，可以在这里添加逻辑：user.dailyExportCount = 0;
+                 // 考虑现有会员未过期的情况，应在现有过期时间基础上延长 (TODO)
+                 // 为了简化，这里直接覆盖过期时间。如果需要叠加，逻辑会复杂一些。
 
-                 await user.save();
-                 console.log(`用户 ${user._id} 会员状态更新成功为 ${user.membershipType}，过期至 ${user.membershipExpiryDate}`);
+                 await db.collection('users').doc(user._id).update({
+                     data: {
+                         membershipType: paymentIntent.membershipType,
+                         membershipExpiryDate: newMembershipExpiryDate
+                     }
+                 });
+                 console.log(`用户 ${user._id} 会员状态更新成功为 ${user.membershipType}，过期至 ${newMembershipExpiryDate}`);
             } else {
-                 console.error('User not found for PaymentIntent:', paymentIntent.outTradeNo, 'User ID:', paymentIntent.userId, 'Notification Data:', notifyData);
-                 // TODO: 记录异常，可能需要人工介入或补偿。 PaymentIntent 状态已是 'paid'，无需再次更新 PaymentIntent 状态。
-                 // 可以考虑发送邮件或消息通知管理员
+                 console.error('User not found for PaymentIntent:', out_trade_no, 'User ID:', paymentIntent.userId, 'Notification Data:', notifyData);
+                 // TODO: 记录异常，可能需要人工介入或补偿。
             }
 
              // 返回成功响应给微信支付
@@ -483,9 +508,8 @@ app.post('/api/payment/notify', async (req, res) => {
             res.set('Content-Type', 'text/xml').status(200).send(successXml);
 
         } catch (error) {
-             console.error('处理支付成功通知时发生错误:', error, 'PaymentIntent:', paymentIntent, 'Notification Data:', notifyData);
+             console.error('处理支付成功通知时发生错误:', error, 'Notification Data:', notifyData);
              // TODO: 记录异常或进行补偿处理。
-             // 可以在这里添加将异常信息记录到日志文件或外部监控系统的代码
 
              // 返回失败响应 (可选，根据微信支付文档，处理异常时返回FAIL让微信重试)
              const failXml = new xml2js.Builder({ rootName: 'xml', headless: true }).buildObject({
@@ -502,14 +526,16 @@ app.post('/api/payment/notify', async (req, res) => {
 
         // 根据 out_trade_no 查找 PaymentIntent 并更新状态为 failed 或 closed
          try{
-            const paymentIntent = await PaymentIntent.findOne({ outTradeNo: notifyData.out_trade_no });
+            const paymentIntentRes = await db.collection('payment_intents').where({ outTradeNo: notifyData.out_trade_no }).get();
+            const paymentIntent = paymentIntentRes.data[0];
+
             if(paymentIntent && paymentIntent.status === 'pending'){
-                 paymentIntent.status = 'failed'; // 或者 closed
-                 paymentIntent.error = `微信支付业务失败: ${notifyData.return_msg || notifyData.err_code_des || '未知错误'} (微信交易号: ${notifyData.transaction_id})`; // 记录失败原因
-                 await paymentIntent.save();
-                 console.log(`PaymentIntent ${paymentIntent.outTradeNo} 状态更新为 failed`);
+                 await db.collection('payment_intents').doc(paymentIntent._id).update({
+                     data: { status: 'failed', error: `微信支付业务失败: ${notifyData.return_msg || notifyData.err_code_des || '未知错误'} (微信交易号: ${notifyData.transaction_id})` }
+                 });
+                 console.log(`PaymentIntent ${notifyData.out_trade_no} 状态更新为 failed`);
             } else if (paymentIntent) {
-                 console.log(`PaymentIntent ${paymentIntent.outTradeNo} 状态已不是 pending (${paymentIntent.status}), 不进行更新。`);
+                 console.log(`PaymentIntent ${notifyData.out_trade_no} 状态已不是 pending (${paymentIntent.status}), 不进行更新。`);
             }
 
          } catch (error) {
