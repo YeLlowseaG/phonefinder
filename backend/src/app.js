@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const { body, query, validationResult } = require('express-validator');
 const amapService = require('./services/amapService');
-const tcb = require('@cloudbase/node-sdk'); // 导入微信云托管 SDK
+//const tcb = require('@cloudbase/node-sdk'); // 导入微信云托管 SDK
 // const connectDB = require('./db'); // 导入数据库连接函数
 // const prisma = require('./utils/prisma'); // 导入 Prisma 客户端
 const { generateToken } = require('./utils/jwt');
@@ -17,7 +17,7 @@ const xml2js = require('xml2js'); // 导入 xml2js 用于构建 XML 响应
 
 // 初始化微信云托管 SDK
 const appTcb = tcb.init({
-  env: process.env.TENCENTCLOUD_RUNENVID || 'your-cloudbase-env-id' // 从环境变量获取环境 ID，或替换为你的环境 ID
+  env: process.env.TENCENTCLOUD_RUNENVID || 'prod-0g944rmt0a4fee15' // 从环境变量获取环境 ID，或替换为你的环境 ID
 });
 const db = appTcb.database(); // 获取数据库引用
 const _ = db.command; // 获取数据库命令对象
