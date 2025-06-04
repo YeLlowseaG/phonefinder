@@ -2,7 +2,7 @@ import axios from 'axios';
 import { message } from 'ant-design-vue';
 
 const request = axios.create({
-  baseURL: 'https://prod-0g944rmt0a4fee15-1332543147.tcloudbaseapp.com/api', // 在 Vite 项目中可以通过 vite.config.js 配置代理
+  baseURL: 'https://express-4rxw-165797-6-1332543147.sh.run.tcloudbase.com', // baseURL 必须用后端服务的公网域名！
   timeout: 10000,
 });
 

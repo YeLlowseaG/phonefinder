@@ -17,7 +17,10 @@ const app = express();
 const PORT = process.env.PORT || 3306;
 
 // 中间件
-app.use(cors());
+app.use(cors({
+    origin: 'https://prod-0g944rmt0a4fee15-1332543147.tcloudbaseapp.com',
+    credentials:true
+}));
 app.use(express.json());
 app.use(xmlparser({
   trim: true,
