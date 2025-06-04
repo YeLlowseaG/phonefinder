@@ -54,7 +54,7 @@
         <p>请使用微信扫描下方二维码完成支付：</p>
         <!-- 二维码组件 -->
         <QrcodeVue :value="qrCodeUrl" :size="200" level="H" v-if="qrCodeUrl" />
-        <p style="margin-top: 10px;">订单号: {{ currentOrderId }}</p>
+        <p style="margin-top: 10px;">订单号: {{ currentoutTradeNo }}</p>
         <!-- 支付状态显示 -->
         <div v-if="paymentStatus === 'pending'" style="margin-top: 10px;">
           <a-spin />
@@ -115,7 +115,7 @@ const membershipLevels = [
 // 支付模态框相关状态
 const paymentModalVisible = ref(false); // 控制模态框显示
 const qrCodeUrl = ref(''); // 二维码链接
-const currentOrderId = ref(''); // 当前订单号
+const currentoutTradeNo = ref(''); // 当前订单号
 const pollingTimer = ref(null); // 轮询定时器
 const paymentStatus = ref('pending'); // 支付状态：pending, success, failed
 
@@ -162,7 +162,7 @@ const startPollingOrderStatus = () => {
     // 设置新的定时器，每3秒查询一次
     pollingTimer.value = setInterval(async () => {
         try {
-            const response = await request.get(`/api/payment/query-order?orderId=${currentOrderId.value}`);
+            const response = await request.get(`/api/payment/query-order?outTradeNo=${currentoutTradeNo.value}`);
             if (response.data.success) {
                 const orderStatus = response.data.data.status;
                 
@@ -188,9 +188,9 @@ const startPollingOrderStatus = () => {
 };
 
 // 显示支付模态框
-const showPaymentModal = (codeUrl, orderId) => {
+const showPaymentModal = (codeUrl, outTradeNo) => {
     qrCodeUrl.value = codeUrl;
-    currentOrderId.value = orderId;
+    currentoutTradeNo.value = outTradeNo;
     paymentStatus.value = 'pending';
     paymentModalVisible.value = true;
     // 开始轮询订单状态
@@ -209,7 +209,7 @@ const handleModalClose = () => {
     paymentStatus.value = 'pending';
     // 清空状态，避免下次打开显示旧数据
     qrCodeUrl.value = '';
-    currentOrderId.value = '';
+    currentoutTradeNo.value = '';
 };
 
 const handleUpgrade = async (membershipType) => {
@@ -232,7 +232,7 @@ const handleUpgrade = async (membershipType) => {
 
              if (response.data.data && response.data.data.codeUrl) {
                  // 调用 showPaymentModal 函数显示模态框
-                 showPaymentModal(response.data.data.codeUrl, response.data.data.orderId);
+                 showPaymentModal(response.data.data.codeUrl, response.data.data.outTradeNo);
              } else {
                  message.error('后端未返回支付二维码信息');
              }

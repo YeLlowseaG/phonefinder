@@ -283,7 +283,7 @@ app.post('/api/payment/create-order', authMiddleware, [
         const { membershipType } = req.body;
         const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
         const orderId = `${WECHAT_PAY_CONFIG.mchId || 'MCH'}${Date.now()}${userId.toString().slice(-6)}`;
-        const amount = membershipType === 'standard' ? 1000 : 10000;
+        const amount = membershipType === 'standard' ? 100 : 10000;
         const description = `${membershipType} 会员升级`;
 
         const paymentIntent = await prisma.paymentIntent.create({

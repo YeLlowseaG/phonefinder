@@ -1,0 +1,565 @@
+06/05 01:44:01
+express-4rxw-027
+服务器运行在 http://localhost:3306
+06/05 01:44:01
+express-4rxw-027
+(Use `node --trace-deprecation ...` to show where the warning was created)
+06/05 01:44:01
+express-4rxw-027
+(node:1075) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+06/05 01:44:01
+express-4rxw-027
+prisma:cli:checkpoint runCheckpointClientCheck(): Execution time for "await checkpoint.check(data)": 3.9735499999997046 ms +4ms
+06/05 01:44:01
+express-4rxw-027
+prisma:cli:checkpoint runCheckpointClientCheck(): Execution time for getting info: 3.3594090000005963 ms +0ms
+06/05 01:44:01
+express-4rxw-027
+prisma:getConfig config data retrieved without errors in getConfig Wasm +1ms
+06/05 01:44:01
+express-4rxw-027
+prisma:getConfig Using getConfig Wasm +1ms
+06/05 01:44:01
+express-4rxw-027
+prisma:getSchema Reading schema from single file /app/prisma/schema.prisma +0ms
+06/05 01:44:01
+express-4rxw-027
+prisma:getSchema Checking existence of /app/prisma/schema.prisma +0ms
+06/05 01:44:01
+express-4rxw-027
+prisma:getSchema Reading schema from single file /app/prisma/schema.prisma +0ms
+06/05 01:44:01
+express-4rxw-027
+prisma:getSchema Checking existence of /app/prisma/schema.prisma +0ms
+06/05 01:44:01
+express-4rxw-027
+prisma:getSchema Reading schema from single file /app/schema.prisma +0ms
+06/05 01:44:01
+express-4rxw-027
+prisma:getSchema Checking existence of /app/schema.prisma +0ms
+06/05 01:44:01
+express-4rxw-027
+} +0ms
+06/05 01:44:01
+express-4rxw-027
+  "packagePath": "/app/package.json"
+06/05 01:44:01
+express-4rxw-027
+prisma:getSchema prismaConfig {
+06/05 01:44:01
+express-4rxw-027
+prisma:getSchema Reading schema from single file /app/schema.prisma +0ms
+06/05 01:44:01
+express-4rxw-027
+prisma:getSchema Checking existence of /app/schema.prisma +0ms
+06/05 01:44:01
+express-4rxw-027
+} +1ms
+06/05 01:44:01
+express-4rxw-027
+  "packagePath": "/app/package.json"
+06/05 01:44:01
+express-4rxw-027
+prisma:getSchema prismaConfig {
+06/05 01:44:01
+express-4rxw-027
+prisma:cli:bin Execution time for executing "await cli.parse(commandArray)": 5969.133561 ms +76ms
+06/05 01:44:01
+express-4rxw-027
+AG✔ Generated Prisma Client (v6.9.0) to ./node_modules/@prisma/client in 74ms
+06/05 01:44:01
+express-4rxw-027
+AGRunning generate... - Prisma Client
+06/05 01:44:01
+express-4rxw-027
+} +99ms
+06/05 01:44:01
+express-4rxw-027
+  }
+06/05 01:44:01
+express-4rxw-027
+    }
+06/05 01:44:01
+express-4rxw-027
+      "debian-openssl-3.0.x": "/app/node_modules/prisma/libquery_engine-debian-openssl-3.0.x.so.node"
+06/05 01:44:01
+express-4rxw-027
+    "libqueryEngine": {
+06/05 01:44:01
+express-4rxw-027
+  "generatorBinaryPaths": {
+06/05 01:44:01
+express-4rxw-027
+prisma:getGenerators {
+06/05 01:44:01
+express-4rxw-027
+} +0ms
+06/05 01:44:01
+express-4rxw-027
+  }
+06/05 01:44:01
+express-4rxw-027
+    ]
+06/05 01:44:01
+express-4rxw-027
+      }
+06/05 01:44:01
+express-4rxw-027
+        "native": true
+06/05 01:44:01
+express-4rxw-027
+        "value": "debian-openssl-3.0.x",
+06/05 01:44:01
+express-4rxw-027
+        "fromEnvVar": null,
+06/05 01:44:01
+express-4rxw-027
+      {
+06/05 01:44:01
+express-4rxw-027
+    "binaryTargets": [
+06/05 01:44:01
+express-4rxw-027
+    ],
+06/05 01:44:01
+express-4rxw-027
+libqueryEngine
+06/05 01:44:01
+express-4rxw-027
+    "engines": [
+06/05 01:44:01
+express-4rxw-027
+  "81e4af48011447c3cc503a190e86995b66d2a28e": {
+06/05 01:44:01
+express-4rxw-027
+prisma:getGenerators neededVersions {
+06/05 01:44:01
+express-4rxw-027
+} +0ms
+06/05 01:44:01
+express-4rxw-027
+  "packagePath": "/app/package.json"
+06/05 01:44:01
+express-4rxw-027
+prisma:getSchema prismaConfig {
+06/05 01:44:01
+express-4rxw-027
+prisma:loadEnv project root found at /app/node_modules/@prisma/client/package.json +3ms
+06/05 01:44:01
+express-4rxw-027
+prisma:mergeSchemas Using mergeSchemas Wasm +0ms
+06/05 01:44:32
+express-4rxw-027
+手机 19802021331 的验证码是：793151
+06/05 01:45:34
+express-4rxw-027
+新用户注册成功，手机号: 19802021331
+06/05 01:46:01
+express-4rxw-027
+Unexpected phone type: []
+06/05 01:46:01
+express-4rxw-027
+Unexpected phone type: []
+06/05 01:46:01
+express-4rxw-027
+Unexpected phone type: []
+06/05 01:46:24
+express-4rxw-027
+}
+06/05 01:46:24
+express-4rxw-027
+  sign: '19D86D7269F72A301080921BE3A8FA59'
+06/05 01:46:24
+express-4rxw-027
+  return_msg: 'OK',
+06/05 01:46:24
+express-4rxw-027
+  return_code: 'SUCCESS',
+06/05 01:46:24
+express-4rxw-027
+  result_code: 'FAIL',
+06/05 01:46:24
+express-4rxw-027
+  nonce_str: 'YmzoRxAQ5UwYVEPL',
+06/05 01:46:24
+express-4rxw-027
+  err_code_des: '商户号该产品权限未开通，请前往商户平台>产品中心检查后重试',
+06/05 01:46:24
+express-4rxw-027
+  err_code: 'NOAUTH',
+06/05 01:46:24
+express-4rxw-027
+Parsed Wechat Pay API response: {
+06/05 01:46:24
+express-4rxw-027
+06/05 01:46:24
+express-4rxw-027
+06/05 01:46:24
+express-4rxw-027
+06/05 01:46:24
+express-4rxw-027
+06/05 01:46:24
+express-4rxw-027
+06/05 01:46:24
+express-4rxw-027
+06/05 01:46:24
+express-4rxw-027
+产品中心检查后重试]]>
+06/05 01:46:24
+express-4rxw-027
+Received from Wechat Pay API: 
+06/05 01:46:24
+express-4rxw-027
+06/05 01:46:24
+express-4rxw-027
+  7BC37ED16527E29CEC98898D68ACDBEB
+06/05 01:46:24
+express-4rxw-027
+  NATIVE
+06/05 01:46:24
+express-4rxw-027
+  https://express-4rxw-165797-6-1332543147.sh.run.tcloudbase.com/api/payment/notify
+06/05 01:46:24
+express-4rxw-027
+  11.163.0.31
+06/05 01:46:24
+express-4rxw-027
+  1000
+06/05 01:46:24
+express-4rxw-027
+  168004086917490591832641
+06/05 01:46:24
+express-4rxw-027
+  standard 会员升级
+06/05 01:46:24
+express-4rxw-027
+  aqf042bn7bj
+06/05 01:46:24
+express-4rxw-027
+  1680040869
+06/05 01:46:24
+express-4rxw-027
+  wxadd4d3239c042ac6
+06/05 01:46:24
+express-4rxw-027
+Sending to Wechat Pay API: 
+06/05 01:46:38
+express-4rxw-027
+06/05 01:46:38
+express-4rxw-027
+06/05 01:46:38
+express-4rxw-027
+产品中心检查后重试]]>
+06/05 01:46:38
+express-4rxw-027
+Received from Wechat Pay API: 
+06/05 01:46:38
+express-4rxw-027
+06/05 01:46:38
+express-4rxw-027
+  ADCB3C7A71D718269F41B9983CB54896
+06/05 01:46:38
+express-4rxw-027
+  NATIVE
+06/05 01:46:38
+express-4rxw-027
+  https://express-4rxw-165797-6-1332543147.sh.run.tcloudbase.com/api/payment/notify
+06/05 01:46:38
+express-4rxw-027
+  11.163.0.28
+06/05 01:46:38
+express-4rxw-027
+  1000
+06/05 01:46:38
+express-4rxw-027
+  168004086917490591977821
+06/05 01:46:38
+express-4rxw-027
+  standard 会员升级
+06/05 01:46:38
+express-4rxw-027
+  f1av0hyxfu9
+06/05 01:46:38
+express-4rxw-027
+  1680040869
+06/05 01:46:38
+express-4rxw-027
+  wxadd4d3239c042ac6
+06/05 01:46:38
+express-4rxw-027
+Sending to Wechat Pay API: 
+06/05 01:46:38
+express-4rxw-027
+}
+06/05 01:46:38
+express-4rxw-027
+  sign: 'F934F8834216354B375C5B9E1FFF1752'
+06/05 01:46:38
+express-4rxw-027
+  return_msg: 'OK',
+06/05 01:46:38
+express-4rxw-027
+  return_code: 'SUCCESS',
+06/05 01:46:38
+express-4rxw-027
+  result_code: 'FAIL',
+06/05 01:46:38
+express-4rxw-027
+  nonce_str: 'Wny3xENHb7zecJx9',
+06/05 01:46:38
+express-4rxw-027
+  err_code_des: '商户号该产品权限未开通，请前往商户平台>产品中心检查后重试',
+06/05 01:46:38
+express-4rxw-027
+  err_code: 'NOAUTH',
+06/05 01:46:38
+express-4rxw-027
+Parsed Wechat Pay API response: {
+06/05 01:46:38
+express-4rxw-027
+06/05 01:46:38
+express-4rxw-027
+06/05 01:46:38
+express-4rxw-027
+06/05 01:46:38
+express-4rxw-027
+06/05 01:47:12
+express-4rxw-027
+}
+06/05 01:47:12
+express-4rxw-027
+  sign: '9C037FDB25D0F5E6E43EF737B473F329'
+06/05 01:47:12
+express-4rxw-027
+  return_msg: 'OK',
+06/05 01:47:12
+express-4rxw-027
+  return_code: 'SUCCESS',
+06/05 01:47:12
+express-4rxw-027
+  result_code: 'FAIL',
+06/05 01:47:12
+express-4rxw-027
+  nonce_str: '3Rr2DsJ2CBUnGT8j',
+06/05 01:47:12
+express-4rxw-027
+  err_code_des: '商户号该产品权限未开通，请前往商户平台>产品中心检查后重试',
+06/05 01:47:12
+express-4rxw-027
+  err_code: 'NOAUTH',
+06/05 01:47:12
+express-4rxw-027
+Parsed Wechat Pay API response: {
+06/05 01:47:12
+express-4rxw-027
+06/05 01:47:12
+express-4rxw-027
+06/05 01:47:12
+express-4rxw-027
+06/05 01:47:12
+express-4rxw-027
+06/05 01:47:12
+express-4rxw-027
+06/05 01:47:12
+express-4rxw-027
+06/05 01:47:12
+express-4rxw-027
+产品中心检查后重试]]>
+06/05 01:47:12
+express-4rxw-027
+Received from Wechat Pay API: 
+06/05 01:47:12
+express-4rxw-027
+06/05 01:47:12
+express-4rxw-027
+  8B6C5C5E973FC6C50E2D419F7886BED2
+06/05 01:47:12
+express-4rxw-027
+  NATIVE
+06/05 01:47:12
+express-4rxw-027
+  https://express-4rxw-165797-6-1332543147.sh.run.tcloudbase.com/api/payment/notify
+06/05 01:47:12
+express-4rxw-027
+  11.163.0.93
+06/05 01:47:12
+express-4rxw-027
+  1000
+06/05 01:47:12
+express-4rxw-027
+  168004086917490592313921
+06/05 01:47:12
+express-4rxw-027
+  standard 会员升级
+06/05 01:47:12
+express-4rxw-027
+  mqsrkf839t
+06/05 01:47:12
+express-4rxw-027
+  1680040869
+06/05 01:47:12
+express-4rxw-027
+  wxadd4d3239c042ac6
+06/05 01:47:12
+express-4rxw-027
+Sending to Wechat Pay API: 
+06/05 01:47:18
+express-4rxw-027
+  11.163.0.20
+06/05 01:47:18
+express-4rxw-027
+  10000
+06/05 01:47:18
+express-4rxw-027
+  168004086917490592374891
+06/05 01:47:18
+express-4rxw-027
+  premium 会员升级
+06/05 01:47:18
+express-4rxw-027
+  vyt478otug
+06/05 01:47:18
+express-4rxw-027
+  1680040869
+06/05 01:47:18
+express-4rxw-027
+  wxadd4d3239c042ac6
+06/05 01:47:18
+express-4rxw-027
+Sending to Wechat Pay API: 
+06/05 01:47:18
+express-4rxw-027
+}
+06/05 01:47:18
+express-4rxw-027
+  sign: '55E977213FC9F0C5E129FFB74759C5FF'
+06/05 01:47:18
+express-4rxw-027
+  return_msg: 'OK',
+06/05 01:47:18
+express-4rxw-027
+  return_code: 'SUCCESS',
+06/05 01:47:18
+express-4rxw-027
+  result_code: 'FAIL',
+06/05 01:47:18
+express-4rxw-027
+  nonce_str: 'pZWbd1IyrtXCFJfo',
+06/05 01:47:18
+express-4rxw-027
+  err_code_des: '商户号该产品权限未开通，请前往商户平台>产品中心检查后重试',
+06/05 01:47:18
+express-4rxw-027
+  err_code: 'NOAUTH',
+06/05 01:47:18
+express-4rxw-027
+Parsed Wechat Pay API response: {
+06/05 01:47:18
+express-4rxw-027
+06/05 01:47:18
+express-4rxw-027
+06/05 01:47:18
+express-4rxw-027
+06/05 01:47:18
+express-4rxw-027
+06/05 01:47:18
+express-4rxw-027
+06/05 01:47:18
+express-4rxw-027
+06/05 01:47:18
+express-4rxw-027
+产品中心检查后重试]]>
+06/05 01:47:18
+express-4rxw-027
+Received from Wechat Pay API: 
+06/05 01:47:18
+express-4rxw-027
+06/05 01:47:18
+express-4rxw-027
+  58A11CC65E83E2C82F9E3F7FED99DE88
+06/05 01:47:18
+express-4rxw-027
+  NATIVE
+06/05 01:47:18
+express-4rxw-027
+  https://express-4rxw-165797-6-1332543147.sh.run.tcloudbase.com/api/payment/notify
+06/05 01:47:26
+express-4rxw-027
+}
+06/05 01:47:26
+express-4rxw-027
+  sign: '5DE2598AAEB92F6935F343467F8FD159'
+06/05 01:47:26
+express-4rxw-027
+  return_msg: 'OK',
+06/05 01:47:26
+express-4rxw-027
+  return_code: 'SUCCESS',
+06/05 01:47:26
+express-4rxw-027
+  result_code: 'FAIL',
+06/05 01:47:26
+express-4rxw-027
+  nonce_str: 'ecPwcI2bwpsMchbE',
+06/05 01:47:26
+express-4rxw-027
+  err_code_des: '商户号该产品权限未开通，请前往商户平台>产品中心检查后重试',
+06/05 01:47:26
+express-4rxw-027
+  err_code: 'NOAUTH',
+06/05 01:47:26
+express-4rxw-027
+Parsed Wechat Pay API response: {
+06/05 01:47:26
+express-4rxw-027
+06/05 01:47:26
+express-4rxw-027
+06/05 01:47:26
+express-4rxw-027
+06/05 01:47:26
+express-4rxw-027
+06/05 01:47:26
+express-4rxw-027
+06/05 01:47:26
+express-4rxw-027
+06/05 01:47:26
+express-4rxw-027
+产品中心检查后重试]]>
+06/05 01:47:26
+express-4rxw-027
+Received from Wechat Pay API: 
+06/05 01:47:26
+express-4rxw-027
+06/05 01:47:26
+express-4rxw-027
+  85FD11DD4F2A761BEC990ACA703A339B
+06/05 01:47:26
+express-4rxw-027
+  NATIVE
+06/05 01:47:26
+express-4rxw-027
+  https://express-4rxw-165797-6-1332543147.sh.run.tcloudbase.com/api/payment/notify
+06/05 01:47:26
+express-4rxw-027
+  11.163.0.81
+06/05 01:47:26
+express-4rxw-027
+  10000
+06/05 01:47:26
+express-4rxw-027
+  168004086917490592455821
+06/05 01:47:26
+express-4rxw-027
+  premium 会员升级
+06/05 01:47:26
+express-4rxw-027
+  oorsq8quq6
+06/05 01:47:26
+express-4rxw-027
+  1680040869
+06/05 01:47:26
+express-4rxw-027
+  wxadd4d3239c042ac6
+06/05 01:47:26
+express-4rxw-027
+Sending to Wechat Pay API:
