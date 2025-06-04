@@ -269,7 +269,7 @@ onUnmounted(() => {
   padding: 40px 24px;
   position: relative;
   padding-bottom: 80px;
-  max-width: 1200px; /* 设置最大宽度 */
+  max-width: 1200px; /* 设置最大宽度值 */
   margin: 0 auto; /* 居中显示 */
 }
 
