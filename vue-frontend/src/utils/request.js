@@ -2,7 +2,7 @@ import axios from 'axios';
 import { message } from 'ant-design-vue';
 
 const request = axios.create({
-  baseURL: 'http://43.139.119.68:8080', // baseURL 必须用后端服务的公网域名！
+  baseURL: 'https://api.helloai001.com', // baseURL 必须用后端服务的公网域名！
   timeout: 10000,
 });
 
