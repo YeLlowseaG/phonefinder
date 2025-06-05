@@ -17,7 +17,10 @@ const PORT = process.env.PORT || 8080;
 
 // 中间件
 app.use(cors({
-    origin: 'https://prod-0g944rmt0a4fee15-1332543147.tcloudbaseapp.com',
+    origin: [
+        'https://phonefinder-nine.vercel.app',
+        'http://localhost:5173'
+    ],
     credentials:true
 }));
 app.use(express.json());
