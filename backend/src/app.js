@@ -8,7 +8,6 @@ const authMiddleware = require('./middleware/auth');
 const XLSX = require('xlsx');
 const wechatPayService = require('./services/wechatPayService');
 const { WECHAT_PAY_CONFIG, verifySign } = require('./services/wechatPayService');
-const xmlparser = require('express-xml-bodyparser');
 const xml2js = require('xml2js');
 const { PrismaClient } = require('@prisma/client');
 
@@ -22,13 +21,6 @@ app.use(cors({
     credentials:true
 }));
 app.use(express.json());
-app.use(xmlparser({
-  trim: true,
-  explicitArray: false,
-  normalize: false,
-  normalizeTags: false,
-  tagNameProcessors: [xml2js.processors.stripPrefix]
-}));
 
 // 内存中的验证码存储
 const verificationCodes = {};
@@ -357,7 +349,13 @@ app.get('/api/payment/query-order', authMiddleware, [
 });
 
 // 接收微信支付结果通知
-app.post('/api/payment/notify', async (req, res) => {
+app.post('/api/payment/notify', xmlparser({
+  trim: true,
+  explicitArray: false,
+  normalize: false,
+  normalizeTags: false,
+  tagNameProcessors: [xml2js.processors.stripPrefix]
+}), async (req, res) => {
     console.log('Received Wechat Pay Notification:', req.body);
 
     const notifyData = req.body;
