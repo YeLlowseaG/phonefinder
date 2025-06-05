@@ -68,6 +68,24 @@
           <close-circle-outlined style="font-size: 24px;" />
           <p>支付失败，请重试</p>
         </div>
+        
+        <!-- 添加支付操作按钮 -->
+        <div style="margin-top: 20px;">
+          <a-button 
+            type="primary" 
+            @click="handleCheckPayment" 
+            :loading="checkingPayment"
+            :disabled="paymentStatus !== 'pending'"
+          >
+            我已完成支付
+          </a-button>
+          <a-button 
+            style="margin-left: 8px" 
+            @click="handlePaymentHelp"
+          >
+            遇到问题？
+          </a-button>
+        </div>
       </div>
     </a-modal>
 
@@ -118,6 +136,7 @@ const qrCodeUrl = ref(''); // 二维码链接
 const currentOrderId = ref(''); // 当前订单号
 const pollingTimer = ref(null); // 轮询定时器
 const paymentStatus = ref('pending'); // 支付状态：pending, success, failed
+const checkingPayment = ref(false);
 
 const checkLoginStatus = async () => {
   const token = localStorage.getItem('token');
@@ -251,6 +270,44 @@ const handleUpgrade = async (membershipType) => {
 
 const goToLogin = () => {
      routerInstance.push('/login'); // 跳转到登录页面
+};
+
+// 手动检查支付状态
+const handleCheckPayment = async () => {
+    if (checkingPayment.value) return;
+    
+    checkingPayment.value = true;
+    try {
+        const response = await request.get(`/api/payment/query-order?outTradeNo=${currentOrderId.value}`);
+        if (response.data.success) {
+            const orderStatus = response.data.data.status;
+            
+            if (orderStatus === 'paid') {
+                paymentStatus.value = 'success';
+                message.success('支付成功！');
+                clearInterval(pollingTimer.value);
+                paymentModalVisible.value = false;
+                await checkLoginStatus();
+            } else if (orderStatus === 'failed') {
+                paymentStatus.value = 'failed';
+                message.error('支付失败，请重试');
+                clearInterval(pollingTimer.value);
+            } else {
+                message.info('暂未检测到支付结果，请稍后再试');
+            }
+        }
+    } catch (error) {
+        console.error('查询订单状态失败:', error);
+        message.error('查询订单状态失败，请稍后重试');
+    } finally {
+        checkingPayment.value = false;
+    }
+};
+
+// 处理支付帮助
+const handlePaymentHelp = () => {
+    // 这里可以跳转到帮助页面或显示帮助信息
+    message.info('如果支付遇到问题，请联系客服或稍后重试');
 };
 
 onMounted(() => {
