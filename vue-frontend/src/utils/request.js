@@ -2,7 +2,7 @@ import axios from 'axios';
 import { message } from 'ant-design-vue';
 
 const request = axios.create({
-  baseURL: 'https://express-4rxw-165797-6-1332543147.sh.run.tcloudbase.com', // baseURL 必须用后端服务的公网域名！
+  baseURL: 'http://43.139.119.68:8080', // baseURL 必须用后端服务的公网域名！
   timeout: 10000,
 });
 
