@@ -1,4 +1,5 @@
 require('dotenv').config();
+const xmlparser = require('express-xml-bodyparser');
 const express = require('express');
 const cors = require('cors');
 const { body, query, validationResult } = require('express-validator');
@@ -352,13 +353,7 @@ app.get('/api/payment/query-order', authMiddleware, [
 });
 
 // 接收微信支付结果通知
-app.post('/api/payment/notify', xmlparser({
-  trim: true,
-  explicitArray: false,
-  normalize: false,
-  normalizeTags: false,
-  tagNameProcessors: [xml2js.processors.stripPrefix]
-}), async (req, res) => {
+app.post('/api/payment/notify', xmlparser(), async (req, res) => {
     console.log('Received Wechat Pay Notification:', req.body);
 
     const notifyData = req.body;
