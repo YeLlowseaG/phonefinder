@@ -234,7 +234,7 @@ const handlePurchase = async (membershipType) => {
 
         if (response.data.success) {
             qrCodeUrl.value = response.data.data.codeUrl; // 获取二维码链接
-            currentOrderId.value = response.data.data.orderId; // 获取订单号
+            currentOrderId.value = response.data.data.orderId || response.data.data.outTradeNo; // 获取订单号
             showPaymentModal.value = true; // 显示支付弹窗
 
             // 开始查询订单状态
