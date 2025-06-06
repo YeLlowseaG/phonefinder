@@ -108,6 +108,7 @@ app.post('/api/auth/verify-code', [
     delete verificationCodes[phone];
 
     try {
+        console.log('开始查找或创建用户', phone);
         let user = await prisma.user.findUnique({
             where: { phone }
         });
@@ -134,7 +135,7 @@ app.post('/api/auth/verify-code', [
         });
 
     } catch (error) {
-        console.error('登录/注册失败:', error);
+        console.error('登录/注册失败:', error, error && error.stack);
         res.status(500).json({ success: false, error: '服务器内部错误' });
     }
 });
