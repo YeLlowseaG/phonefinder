@@ -17,13 +17,6 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 // 中间件
-app.use(cors({
-    origin: [
-        'https://phonefinder-nine.vercel.app',
-        'http://localhost:5173'
-    ],
-    credentials:true
-}));
 app.use(express.json());
 
 // 内存中的验证码存储
