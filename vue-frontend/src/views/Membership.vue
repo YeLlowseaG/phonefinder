@@ -1,19 +1,24 @@
 <template>
   <div class="membership-container">
     <h1>会员中心</h1>
-    <p>这里将展示会员等级信息和升级选项。</p>
+    <p>邀请码激活后可体验全部会员功能，体验期为30天。</p>
     
     <!-- 临时显示用户登录状态和信息 -->
     <div v-if="isLoggedIn">
         <p>您已登录。</p>
-        <p v-if="userInfo">欢迎，{{ userInfo.phone }} ({{ userInfo.membershipType }})</p>
-        <!-- 如果已登录，并且不是高级会员，显示升级提示 -->
-        <div v-if="userInfo && userInfo.membershipType !== 'premium'" style="margin-top: 20px; color: #1890ff;">
-            <p>您当前的会员等级是 {{ userInfo.membershipType === 'standard' ? '普通会员' : '免费用户' }}，升级到高级会员可享受更多权益。</p>
+        <p v-if="userInfo">欢迎，{{ userInfo.phone }} ({{ userInfo.membershipType === 'experience' ? '体验会员' : userInfo.membershipType === 'premium' ? '高级会员' : userInfo.membershipType === 'standard' ? '普通会员' : '免费用户' }})</p>
+        <div v-if="userInfo && userInfo.membershipType === 'experience'">
+            <p style="color: #52c41a;">您正在体验会员功能，剩余 {{ experienceDaysLeft }} 天。</p>
+        </div>
+        <div v-else-if="userInfo && userInfo.membershipType !== 'premium' && userInfo.membershipType !== 'experience'" style="margin-top: 20px; color: #ff4d4f;">
+            <p>您当前为普通用户，如需体验会员功能请通过邀请码激活。</p>
+        </div>
+        <div v-else-if="userInfo && userInfo.membershipType === 'premium'">
+            <p style="color: #1890ff;">您是高级会员，享有全部会员权益。</p>
         </div>
     </div>
     <div v-else>
-        <p>您尚未登录，登录后可以查看您的会员状态和升级选项。</p>
+        <p>您尚未登录，登录后可以查看您的会员状态和体验期信息。</p>
     </div>
 
     <a-divider>会员等级与权益</a-divider> <!-- 分隔线 -->
@@ -23,27 +28,23 @@
         <p>价格: {{ level.price }}</p>
         <p>搜索结果: {{ level.searchLimit }} 条</p>
         <p>导出权限: {{ level.exportPermission }}</p>
-        
-        <!-- 根据用户登录状态和会员类型显示不同的按钮 -->
-        <template v-if="isLoggedIn">
-          <!-- 如果用户会员类型等于当前卡片类型，显示当前等级 -->
-          <a-button v-if="userInfo && userInfo.membershipType === level.type" type="primary" disabled>当前等级</a-button>
-          <!-- 如果用户是普通会员，且当前卡片是免费，显示已拥有 -->
-          <a-button v-else-if="userInfo && userInfo.membershipType === 'standard' && level.type === 'free'" disabled>已拥有</a-button>
-          <!-- 如果用户是高级会员，且当前卡片是免费或普通，显示已拥有 -->
-           <a-button v-else-if="userInfo && userInfo.membershipType === 'premium' && (level.type === 'free' || level.type === 'standard')" disabled>已拥有</a-button>
-          <!-- 否则，显示升级按钮 -->
-          <a-button v-else type="primary" @click="handleUpgrade(level.type)">立即升级</a-button>
+        <template v-if="isLoggedIn && userInfo && userInfo.membershipType === level.type">
+          <a-button type="primary" disabled>当前等级</a-button>
         </template>
         <template v-else>
-           <!-- 未登录时显示提示登录按钮 -->
-           <a-button type="primary" @click="goToLogin">登录后升级</a-button>
+          <a-button disabled>仅限体验期</a-button>
         </template>
-
       </a-card>
     </div>
 
-    <!-- 微信支付二维码模态框 -->
+    <!-- 展示扫码加微信获取邀请码的二维码 -->
+    <div style="margin-top: 40px; text-align: center;">
+      <p>扫码加微信获取邀请码，体验会员功能：</p>
+      <img src="/quizqrcode.png" alt="微信二维码" style="width: 180px; height: 180px;" />
+    </div>
+
+    <!-- 注释掉支付相关模态框和逻辑 -->
+    <!--
     <a-modal 
         v-model:visible="paymentModalVisible"
         title="微信支付"
@@ -52,10 +53,10 @@
     >
       <div class="qrcode-container" style="text-align: center; padding: 20px;">
         <p>请使用微信扫描下方二维码完成支付：</p>
-        <!-- 二维码组件 -->
+        <!-- 二维码组件 --
         <QrcodeVue :value="qrCodeUrl" :size="200" level="H" v-if="qrCodeUrl" />
         <p style="margin-top: 10px;">订单号: {{ currentOrderId }}</p>
-        <!-- 支付状态显示 -->
+        <!-- 支付状态显示 --
         <div v-if="paymentStatus === 'pending'" style="margin-top: 10px;">
           <a-spin />
           <p>等待支付...</p>
@@ -69,7 +70,7 @@
           <p>支付失败，请重试</p>
         </div>
         
-        <!-- 添加支付操作按钮 -->
+        <!-- 添加支付操作按钮 --
         <div style="margin-top: 20px;">
           <a-button 
             type="primary" 
@@ -87,13 +88,13 @@
           </a-button>
         </div>
       </div>
-    </a-modal>
+    </a-modal> -->
 
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import request from '@/utils/request'; // 导入 request 工具
 import { useRouter } from 'vue-router'; // 导入 useRouter
 import { message } from 'ant-design-vue'; // 导入 message 组件
@@ -137,6 +138,16 @@ const currentOrderId = ref(''); // 当前订单号
 const pollingTimer = ref(null); // 轮询定时器
 const paymentStatus = ref('pending'); // 支付状态：pending, success, failed
 const checkingPayment = ref(false);
+
+const experienceDaysLeft = computed(() => {
+  if (userInfo.value && userInfo.value.membershipType === 'experience' && userInfo.value.membershipExpiryDate) {
+    const now = new Date();
+    const expiry = new Date(userInfo.value.membershipExpiryDate);
+    const diff = expiry - now;
+    return diff > 0 ? Math.ceil(diff / (1000 * 60 * 60 * 24)) : 0;
+  }
+  return 0;
+});
 
 const checkLoginStatus = async () => {
   const token = localStorage.getItem('token');
