@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../components/Login.vue';
 import Home from '../views/Home.vue'; // 导入 Home 组件
 import Membership from '../views/Membership.vue'; // 导入 Membership 组件
+import InviteAdmin from '../views/InviteAdmin.vue'; // 导入邀请码管理页面
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
     name: 'Membership',
     component: Membership,
     // meta: { requiresAuth: true } // 移除认证要求，允许未登录访问
+  },
+  {
+    path: '/invite-admin',
+    name: 'InviteAdmin',
+    component: InviteAdmin
   }
 ];
 

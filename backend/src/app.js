@@ -11,6 +11,8 @@ const wechatPayService = require('./services/wechatPayService');
 const { WECHAT_PAY_CONFIG, verifySign } = require('./services/wechatPayService');
 const xml2js = require('xml2js');
 const { PrismaClient } = require('@prisma/client');
+const InviteCode = require('./models/InviteCode');
+const User = require('./models/User');
 
 const prisma = new PrismaClient();
 const app = express();
@@ -493,6 +495,106 @@ app.post('/api/payment/notify', xmlparser(), async (req, res) => {
         });
         res.set('Content-Type', 'text/xml').status(200).send(successXml);
     }
+});
+
+// 生成邀请码（单个/批量）
+app.post('/api/invite/generate', async (req, res) => {
+  const { count = 1 } = req.body;
+  const codes = [];
+  for (let i = 0; i < count; i++) {
+    const code = Math.random().toString(36).substr(2, 8).toUpperCase();
+    await InviteCode.create({ code });
+    codes.push(code);
+  }
+  res.json({ success: true, codes });
+});
+
+// 手机号+邀请码登录/注册
+app.post('/api/auth/login-invite', async (req, res) => {
+  const { phone, inviteCode } = req.body;
+  if (!/^1[3-9]\d{9}$/.test(phone)) {
+    return res.json({ success: false, error: '手机号格式不正确' });
+  }
+  if (!inviteCode) {
+    return res.json({ success: false, error: '邀请码不能为空' });
+  }
+  // 校验邀请码
+  const invite = await InviteCode.findOne({ code: inviteCode, status: 'unused' });
+  if (!invite) {
+    return res.json({ success: false, error: '邀请码无效或已被使用' });
+  }
+  // 查找或创建用户
+  let user = await User.findOne({ phone });
+  if (!user) {
+    // 新用户，注册并激活体验
+    user = await User.create({
+      phone,
+      membershipType: 'experience',
+      membershipExpiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+    });
+    // 标记邀请码已用
+    invite.status = 'used';
+    invite.usedBy = user._id;
+    invite.usedAt = new Date();
+    await invite.save();
+  } else if (user.membershipType !== 'experience') {
+    // 老用户未体验过，激活体验
+    user.membershipType = 'experience';
+    user.membershipExpiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    await user.save();
+    invite.status = 'used';
+    invite.usedBy = user._id;
+    invite.usedAt = new Date();
+    await invite.save();
+  }
+  // 生成 token
+  const token = generateToken(user._id);
+  res.json({ success: true, data: { token } });
+});
+
+// 查询所有邀请码（支持分页、状态筛选）
+app.get('/api/invite/list', async (req, res) => {
+  const { page = 1, pageSize = 20, status } = req.query;
+  const filter = {};
+  if (status) filter.status = status;
+  const total = await InviteCode.countDocuments(filter);
+  const codes = await InviteCode.find(filter)
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * pageSize)
+    .limit(Number(pageSize))
+    .populate('usedBy', 'phone');
+  res.json({ success: true, data: { total, codes } });
+});
+
+// 作废邀请码
+app.post('/api/invite/expire', async (req, res) => {
+  const { code } = req.body;
+  const invite = await InviteCode.findOne({ code });
+  if (!invite) return res.json({ success: false, error: '邀请码不存在' });
+  invite.status = 'expired';
+  await invite.save();
+  res.json({ success: true });
+});
+
+// 恢复邀请码（将作废的码恢复为未用）
+app.post('/api/invite/restore', async (req, res) => {
+  const { code } = req.body;
+  const invite = await InviteCode.findOne({ code });
+  if (!invite) return res.json({ success: false, error: '邀请码不存在' });
+  if (invite.status !== 'expired') return res.json({ success: false, error: '只有作废的邀请码才能恢复' });
+  invite.status = 'unused';
+  invite.usedBy = undefined;
+  invite.usedAt = undefined;
+  await invite.save();
+  res.json({ success: true });
+});
+
+// 查询邀请码详情
+app.get('/api/invite/detail', async (req, res) => {
+  const { code } = req.query;
+  const invite = await InviteCode.findOne({ code }).populate('usedBy', 'phone');
+  if (!invite) return res.json({ success: false, error: '邀请码不存在' });
+  res.json({ success: true, data: invite });
 });
 
 // 错误处理中间件
