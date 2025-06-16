@@ -1,4 +1,6 @@
 require('dotenv').config();
+console.log('WECHAT_MCH_ID:', process.env.WECHAT_MCH_ID);
+console.log('WECHAT_APP_ID:', process.env.WECHAT_APP_ID);
 const xmlparser = require('express-xml-bodyparser');
 const express = require('express');
 const cors = require('cors');
