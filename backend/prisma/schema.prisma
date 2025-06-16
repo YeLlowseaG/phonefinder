@@ -43,3 +43,15 @@ model PaymentIntent {
 
   @@map("payment_intents")
 }
+
+model InviteCode {
+  id          Int      @id @default(autoincrement())
+  code        String   @unique @db.VarChar(32)
+  status      String   @default("unused") @db.VarChar(20) // unused, used, expired
+  usedByPhone String?  @db.VarChar(20) // 使用该邀请码的手机号
+  usedAt      DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  // 可根据需要添加更多字段
+  @@map("invite_codes")
+}
