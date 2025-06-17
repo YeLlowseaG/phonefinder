@@ -520,48 +520,35 @@ app.post('/api/auth/login-invite', async (req, res) => {
   if (!inviteCode) {
     return res.json({ success: false, error: '邀请码不能为空' });
   }
-  // 校验邀请码
+  // 查找用户
+  let user = await prisma.user.findUnique({ where: { phone } });
+  if (user) {
+    // 已注册用户，直接登录
+    const token = generateToken(user.id);
+    return res.json({ success: true, data: { token } });
+  }
+  // 新用户注册，校验邀请码
   const invite = await prisma.inviteCode.findFirst({ where: { code: inviteCode, status: 'unused' } });
   if (!invite) {
     return res.json({ success: false, error: '邀请码无效或已被使用' });
   }
-  // 查找或创建用户
-  let user = await prisma.user.findUnique({ where: { phone } });
-  if (!user) {
-    user = await prisma.user.create({
-      data: {
-        phone,
-        membershipType: 'experience',
-        membershipExpiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-      }
-    });
-    // 标记邀请码已用
-    await prisma.inviteCode.update({
-      where: { id: invite.id },
-      data: {
-        status: 'used',
-        usedByPhone: phone,
-        usedAt: new Date()
-      }
-    });
-  } else if (user.membershipType !== 'experience') {
-    user = await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        membershipType: 'experience',
-        membershipExpiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-      }
-    });
-    await prisma.inviteCode.update({
-      where: { id: invite.id },
-      data: {
-        status: 'used',
-        usedByPhone: phone,
-        usedAt: new Date()
-      }
-    });
-  }
-  // 生成 token
+  // 注册新用户
+  user = await prisma.user.create({
+    data: {
+      phone,
+      membershipType: 'experience',
+      membershipExpiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+    }
+  });
+  // 标记邀请码已用
+  await prisma.inviteCode.update({
+    where: { id: invite.id },
+    data: {
+      status: 'used',
+      usedByPhone: phone,
+      usedAt: new Date()
+    }
+  });
   const token = generateToken(user.id);
   res.json({ success: true, data: { token } });
 });

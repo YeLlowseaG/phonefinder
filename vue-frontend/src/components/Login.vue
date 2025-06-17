@@ -67,20 +67,20 @@ const onFinish = async (values) => {
   try {
     loading.value = true;
     const response = await request.post('/api/auth/login-invite', values);
-    
-    // 保存 token 到 localStorage
-    localStorage.setItem('token', response.data.data.token);
-    localStorage.setItem('userInfo', JSON.stringify({
-      userId: response.data.data.userId,
-      phone: response.data.data.phone,
-    }));
-
-    message.success('登录成功');
-    // 登录成功后跳转到主页
-    router.push('/home');
-
+    if (response.data.success) {
+      // 保存 token 到 localStorage
+      localStorage.setItem('token', response.data.data.token);
+      // 登录成功提示
+      message.success('登录成功');
+      // 登录成功后跳转到主页
+      router.push('/home');
+    } else {
+      // 失败时弹窗提示后端返回的文案
+      message.error(response.data.error || '登录失败，请重试');
+    }
   } catch (error) {
-    // 错误已经在响应拦截器中处理
+    // 网络错误或后端未返回 error 字段
+    message.error(error.response?.data?.error || '网络错误，请稍后重试');
   } finally {
     loading.value = false;
   }
