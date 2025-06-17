@@ -21,6 +21,7 @@
       <div v-if="detail">
         <p>邀请码：{{ detail.code }}</p>
         <p>状态：{{ detail.status }}</p>
+        <p>手机号：{{ detail.usedByPhone || '未使用' }}</p>
         <p>创建时间：{{ formatDate(detail.createdAt) }}</p>
         <p v-if="detail.usedBy">使用人手机号：{{ detail.usedBy.phone }}</p>
         <p v-if="detail.usedAt">使用时间：{{ formatDate(detail.usedAt) }}</p>
@@ -44,6 +45,7 @@ const detail = ref(null);
 const columns = [
   { title: '邀请码', dataIndex: 'code', key: 'code' },
   { title: '状态', dataIndex: 'status', key: 'status' },
+  { title: '手机号', dataIndex: 'usedByPhone', key: 'usedByPhone' }, // 新增
   { title: '创建时间', dataIndex: 'createdAt', key: 'createdAt',
     customRender: ({ text }) => formatDate(text) },
   { title: '操作', key: 'action', slots: { customRender: 'action' } },
